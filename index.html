@@ -4,45 +4,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    canvas {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+  </style>
   <title>Happy Holidays!</title>
 </head>
 
 <body>
   <canvas id="can1"></canvas>
+  <canvas id="can2"></canvas>
 
   <script>
     let el = document.getElementById.bind(document)
-    let can = el('can1')
-    let ctx = can.getContext('2d')
-    let w = window.innerWidth, h = window.innerHeight
 
-    can.width = w; can.height = h
-    ctx.fillStyle = 'rgba(0,0,0,.5)'
-    ctx.fillRect(0, 0, w, h)
-    ctx.font = '128px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
+    // prepare our canvas
+    function cancan(can) {
+      let ctx = can.getContext('2d')
+      let w = window.innerWidth, h = window.innerHeight
+      can.width = w; can.height = h
+      return {can, ctx, w, h}
+    }
+
+    let c1 = cancan(el('can1'))
+    let c2 = cancan(el('can2'))
+
+    // paint it black
+    c1.ctx.fillStyle = '#000'
+    c1.ctx.fillRect(0, 0, c1.w, c1.h)
+
+    // make some snowbjects
+    let snow = Array(600).fill(0).map(_ => {
+      return {
+        x: Math.random() * c2.w,
+        y: -50,
+        r: Math.random() * 10,
+        dy: Math.random() * 5 + 2,
+        delay: Math.random() * 500,
+        ff: false,
+        render() {
+          c2.ctx.fillRect(this.x, this.y, this.r, this.r)
+        },
+        step() {
+          if(this.delay-- > 0) return
+          this.y += this.dy + Math.random()
+          this.x += Math.random() - 0.5
+          if(this.y >= c2.h - 50 - this.r) {
+            this.ff = !this.ff
+            if(this.ff) return this.delay = 100
+            this.y = 0
+            this.x = Math.random() * c2.w
+          }
+        }
+      }
+    })
+
+    // draw falling snowflakes
+    c2.ctx.fillStyle = '#FFF'
+    function snowfall() {
+      c2.ctx.clearRect(0, 0, c2.w, c2.h)
+      snow.forEach(sn => {
+        sn.render()
+        sn.step()
+      })
+    }
+
+    // change text colour
+    function magictext() {
+      c1.ctx.fillStyle = `hsl(${t} 80 80)`
+      c1.ctx.font = '64px sans-serif'
+      c1.ctx.textAlign = 'center'
+      c1.ctx.textBaseline = 'middle'
+      c1.ctx.fillText('Happy Holidays!', c1.w / 2, c1.h / 2)
+    }
+
+    // let's go
+    function go() {
+      t++
+      snowfall()
+      magictext()
+      requestAnimationFrame(go)
+    }
 
     let t = 0
-    setInterval(() => {
-      ctx.clearRect(0, 0, w, h)
-
-      // draw the text
-      ctx.fillStyle = '#888'
-      ctx.fillText('Happy Holidays!', w / 2, h / 2)
-
-      // draw the hearts
-      for(let i = 1; i < 360; i += 5) {
-        let r = 48 + Math.sin(t + i) * 72
-        let x = w / 2 + r * Math.cos(i * Math.PI / 180)
-        let y = h / 2 + r * Math.sin(i * Math.PI / 180)
-
-        ctx.beginPath()
-        ctx.arc(x, y, Math.abs(r * .5), 0, Math.PI * 2)
-        ctx.stroke()
-      }
-      t += .03
-    }, 60)
+    go()
   </script>
 </body>
 
