@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Holidays!</title>
+</head>
+
+<body>
+  <canvas id="can1"></canvas>
+
+  <script>
+    let el = document.getElementById.bind(document)
+    let can = el('can1')
+    let ctx = can.getContext('2d')
+    let w = window.innerWidth, h = window.innerHeight
+
+    can.width = w; can.height = h
+    ctx.fillStyle = 'rgba(0,0,0,.5)'
+    ctx.fillRect(0, 0, w, h)
+    ctx.font = '128px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+
+    let t = 0
+    setInterval(() => {
+      ctx.clearRect(0, 0, w, h)
+
+      // draw the text
+      ctx.fillStyle = '#888'
+      ctx.fillText('Happy Holidays!', w / 2, h / 2)
+
+      // draw the hearts
+      for(let i = 1; i < 360; i += 5) {
+        let r = 48 + Math.sin(t + i) * 72
+        let x = w / 2 + r * Math.cos(i * Math.PI / 180)
+        let y = h / 2 + r * Math.sin(i * Math.PI / 180)
+
+        ctx.beginPath()
+        ctx.arc(x, y, Math.abs(r * .5), 0, Math.PI * 2)
+        ctx.stroke()
+      }
+      t += .03
+    }, 60)
+  </script>
+</body>
+
+</html>
