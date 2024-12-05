@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Make it snow</title>
+</head>
+
+<body>
+  <canvas id="snow"></canvas>
+
+  <script>
+    let el = document.getElementById.bind(document)
+    let can = el('snow')
+    let ctx = can.getContext('2d')
+
+    let rand = n => Math.floor(Math.random() * n)
+
+    let snowbjects = Array(20).fill(0).map(_ => ({
+      r: rand(10),
+      x: rand(can.width),
+      y: 0,
+      render(ctx) {
+        ctx.fillRect(this.x, this.y, this.r, this.r)
+        this.y += 1
+      }
+    }))
+
+    function go() {
+      ctx.clearRect(0, 0, can.width, can.height)
+      snowbjects.forEach(s => s.render(ctx))
+      window.requestAnimationFrame(go)
+    }
+
+    go()
+
+    console.log(snowbjects)
+  </script>
+</body>
+
+</html>

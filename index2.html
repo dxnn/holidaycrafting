@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Holidays!</title>
+</head>
+
+<body>
+  <canvas id="canvas1"></canvas>
+  <canvas id="canvas2"></canvas>
+  <canvas id="canvas3"></canvas>
+
+  <script>
+    let el = document.getElementById.bind(document)
+    function canject(can) {
+      can.width = window.innerWidth
+      can.height = window.innerHeight
+      return {
+        can,
+        ctx: can.getContext('2d'),
+        w: can.width,
+        h: can.height
+      }
+    }
+
+    let treecan = canject(el('canvas1'))
+    let snowcan = canject(el('canvas2'))
+    let textcan = canject(el('canvas3'))
+
+
+  </script>
+</body>
+
+</html>
