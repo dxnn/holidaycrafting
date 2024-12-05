@@ -13,6 +13,9 @@
   <canvas id="canvas3"></canvas>
 
   <script>
+
+    ////// DOM
+
     let el = document.getElementById.bind(document)
     let w = window.innerWidth
     let h = window.innerHeight
@@ -28,17 +31,23 @@
     let snowcan = canject(el('canvas2'))
     let textcan = canject(el('canvas3'))
 
+    let mx = 0, my = 0
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX
+      my = e.clientY
+    })
+
+    ///// trees
+
     function draw_tree(ctx, x, y, s) {
       ctx.font = `${s}px sans-serif`
       ctx.fillText("🎄", x, y)
     }
 
     function trees() {
-      draw_tree(treecan.ctx, 100, h * 7 / 10, 100)
-      draw_tree(treecan.ctx, 140, h * 8 / 10, 140)
-      draw_tree(treecan.ctx, 210, h * 9 / 10, 200)
-      draw_tree(treecan.ctx, 310, h * 88 / 100, 180)
-      draw_tree(treecan.ctx, 510, h * 78 / 100, 140)
+      for(let i = 0; i < Math.PI * 2; i += 0.3) {
+        draw_tree(treecan.ctx, i * w / (2 * Math.PI), h * 8 / 10 + Math.sin(i) * h * 1 / 5, 100 + Math.sin(i) * 50)
+      }
     }
 
     treecan.ctx.fillStyle = "#000"
@@ -47,6 +56,7 @@
     let treedata = treecan.ctx.getImageData(0, 0, w, h)
 
     // make some snowbjects
+
     let snow = Array(1600).fill(0).map(_ => {
       return {
         x: Math.random() * w,
@@ -60,8 +70,11 @@
         },
         step() {
           if(this.delay-- > 0) return
+          let dist = Math.sqrt(Math.pow(this.y - my, 2) * Math.pow(this.x - mx, 2))
           this.y += this.dy + Math.random()
+            + (dist > 300 ? 0 : Math.random() * -10)// Math.min(10, Math.max(-10, 10 / (this.y / 50 - my / 50))))
           this.x += Math.random() - 0.5
+            + (dist > 300 ? 0 : Math.random() * 10 - 5)// Math.min(10, Math.max(-10, 10 / (this.x / 50 - mx / 50))))
           if(this.y >= h - 50 - this.r || treedata.data[(this.y | 0) * w * 4 + (this.x | 0) * 4 + 1]) {
             this.ff = !this.ff
             if(this.ff) return this.delay = 300
