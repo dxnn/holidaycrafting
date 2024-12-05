@@ -70,14 +70,11 @@
         },
         step() {
           if(this.delay-- > 0) return
-          // let dist = Math.abs(this.y - my, 2) + Math.abs(this.x - mx, 2)
           let dist = Math.sqrt(Math.pow(this.y - my, 2) + Math.pow(this.x - mx, 2))
-          this.y += this.dy + Math.random()
-            + (dist > 100 ? 0 : Math.random() * -15)
-          // + Math.min(10, Math.max(-10, 10 / (this.y / 10 - my / 10)))
-          this.x += Math.random() - 0.5
-            + (dist > 100 ? 0 : Math.random() * 20 - 10)
-          // + Math.min(10, Math.max(-10, 10 / (this.x / 10 - mx / 10)))
+          // this.y += this.dy + Math.random() + (dist > 100 ? 0 : Math.random() * -15)
+          // this.x += Math.random() - 0.5 + (dist > 100 ? 0 : Math.random() * 20 - 10)
+          this.y = dist > 100 ? this.y + this.dy + Math.random() : Math.cos(Math.acos((this.y - my) / dist) + 0.0) * (dist + 1.1) + my
+          this.x = dist > 100 ? this.x + Math.random() - 0.5 : Math.sin(Math.asin((this.x - mx) / dist) + 0.0) * (dist + 1.1) + mx
           if(this.y >= h - 50 - this.r || treedata.data[(this.y | 0) * w * 4 + (this.x | 0) * 4 + 1]) {
             this.ff = !this.ff
             if(this.ff) return this.delay = 300
