@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Holidays!</title>
+</head>
+
+<body>
+
+  <script>
+    let el = document.getElementById.bind(document)
+    let w = window.innerWidth, h = window.innerHeight
+
+    function prep_canvas() {
+      let can = document.createElement('canvas')
+      let ctx = can.getContext('2d')
+      can.width = w
+      can.height = h
+      can.style = "position: absolute; top: 0px; left: 0px;"
+      document.body.appendChild(can)
+      return {can, ctx}
+    }
+
+    let trees = prep_canvas()
+    trees.ctx.fillStyle = '#000'
+    trees.ctx.fillRect(0, 0, w, h)
+
+    let hill1 = x => Math.sin(x * 33 / w) * (h / 50) + h / 8
+    let hill2 = x => Math.cos(x * 15 / w) * (h / 40) + h / 9
+    let mixmax = (...fs) => i => Math.max.apply(null, fs.map(f => f(i)))
+
+    function draw_hill(f) {
+      for(let i = 0; i < w; i += 1)
+        trees.ctx.fillRect(i, h - f(i), 1, f(i))
+    }
+
+    trees.ctx.fillStyle = '#222'
+    draw_hill(hill1)
+    trees.ctx.fillStyle = '#444'
+    draw_hill(hill2)
+  </script>
+</body>
+
+</html>

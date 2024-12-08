@@ -55,7 +55,7 @@
     trees()
     let treedata = treecan.ctx.getImageData(0, 0, w, h)
 
-    // make some snowbjects
+    // make some snobjects
 
     let snow = Array(1600).fill(0).map(_ => {
       return {
@@ -73,8 +73,19 @@
           let dist = Math.sqrt(Math.pow(this.y - my, 2) + Math.pow(this.x - mx, 2))
           // this.y += this.dy + Math.random() + (dist > 100 ? 0 : Math.random() * -15)
           // this.x += Math.random() - 0.5 + (dist > 100 ? 0 : Math.random() * 20 - 10)
-          this.y = dist > 100 ? this.y + this.dy + Math.random() : Math.cos(Math.acos((this.y - my) / dist) + 0.0) * (dist + 1.1) + my
-          this.x = dist > 100 ? this.x + Math.random() - 0.5 : Math.sin(Math.asin((this.x - mx) / dist) + 0.0) * (dist + 1.1) + mx
+          let p1 = Math.PI / 400
+          let cos = Math.cos(p1), sin = Math.sin(p1)
+          let [x1, y1] = [this.x + Math.random() - 0.5, this.y + this.dy + Math.random()]
+          let [x2, y2] = [Math.sin(Math.asin((this.x - mx) / dist) - 0.01) * (dist + 0.1) + mx, Math.cos(Math.acos((this.y - my) / dist) - 0.01) * (dist + 0.1) + my]
+          // this.x = dist > 100 ? this.x + Math.random() - 0.5 : cos * (this.x - mx) + sin * (this.x - mx) + mx
+          // this.y = dist > 100 ? this.y + this.dy + Math.random() : cos * (this.y - my) - sin * (this.y - my) + my
+          // this.x = dist > 100 ? this.x + Math.random() - 0.5 : Math.sin(Math.asin((this.x - mx) / dist) - 0.01) * (dist + 0.1) + mx
+          // this.y = dist > 100 ? this.y + this.dy + Math.random() : Math.cos(Math.acos((this.y - my) / dist) - 0.01) * (dist + 0.1) + my
+          // let blend = (x1, x2, dist, t) => dist > t ? x1 : x2
+          let blend = (x1, x2, dist, t) => Math.min(1, dist / t) * x1 + Math.max(0, 1 - dist / t) * x2
+          this.x = blend(x1, x2, dist, 300)
+          this.y = blend(y1, y2, dist, 300)
+
           if(this.y >= h - 50 - this.r || treedata.data[(this.y | 0) * w * 4 + (this.x | 0) * 4 + 1]) {
             this.ff = !this.ff
             if(this.ff) return this.delay = 300
