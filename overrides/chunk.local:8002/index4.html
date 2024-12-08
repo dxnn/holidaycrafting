@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Holidays!</title>
+</head>
+
+<body>
+
+  <script>
+    let el = document.getElementById.bind(document)
+    let w = window.innerWidth, h = window.innerHeight
+
+    function prep_canvas() {
+      let can = document.createElement('canvas')
+      let ctx = can.getContext('2d')
+      can.width = w
+      can.height = h
+      can.style = "position: absolute; top: 0px; left: 0px;"
+      document.body.appendChild(can)
+      return {can, ctx}
+    }
+
+    
+    let trees = prep_canvas()
+    trees.ctx.fillStyle = '#000'
+    trees.ctx.fillRect(0, 0, w, h)
+
+    let hill1 = x => Math.sin(x * 21 / w) * (h / 50) + h / 8
+    let hill2 = x => Math.cos(x * 15 / w) * (h / 40) + h / 9
+    let hill3 = x => -Math.cos(x * 18 / w) * (h / 60) + h / 6
+    let hill4 = x => Math.cos(x * 16 / w) * (h / 90) + h / 16
+    let hill5 = x => Math.sin(x * 8 / w) * (h / 90) + h / 22
+    let mixmax = (...fs) => i => Math.max.apply(null, fs.map(f => f(i)))
+    let mixave = (...fs) => i => fs.map(f => f(i)).reduce((acc, x) => acc+x, 0)/fs.length
+
+    function draw_hill(f, size, p) {
+      let pairs = []
+      for(let i = 0; i < w; i += 1) {
+        trees.ctx.fillRect(i, h - f(i), 1, f(i))
+        if(Math.random() < p)
+          pairs.push([i, h - f(i)])
+      }
+      pairs.forEach(([x,y]) => 
+          draw_tree(x, y, size + Math.random() * size * 0.5))
+    }
+
+    function draw_tree(x, y, size) {
+      trees.ctx.font = `${size}px sans-serif`
+      trees.ctx.fillText('🎄', x, y)
+    }
+
+    trees.ctx.fillStyle = '#222'
+    draw_hill(mixmax(hill1, hill2), 30, 0.1)
+    trees.ctx.fillStyle = '#333'
+    draw_hill(mixave(hill3, hill4), 80, 0.02)
+    trees.ctx.fillStyle = '#444'
+    draw_hill(hill5, 150, 0.01)
+
+    let treedata = trees.ctx.getImageData(0, 0, w, h).data
+    let pixelq = (data, x, y) => data[(y|0) * w * 4 + (x|0) * 4]
+
+    
+    let snow = prep_canvas()
+    let snobjects = Array(400).fill(0).map(_ => ({
+      x: Math.random() * w,
+      y: -20,
+      s: Math.random() * 10,
+      dy: 3 + Math.random() * 10,
+      delay: Math.random() * 400,
+      flip: false,
+      render() {
+        snow.ctx.fillRect(this.x, this.y, this.s, this.s)
+      },
+      step() {
+        if(this.delay > 0) return this.delay--
+        if(this.flip) {
+          this.flip = false
+          this.y = -10
+          this.x = Math.random() * w * 1.1
+        }
+        if(this.y >= h - 10 || pixelq(treedata, this.x, this.y)) {
+          this.flip = true
+          return this.delay = 100
+        }
+        this.y += this.dy
+        this.x += Math.random() * 1 - 1.5
+      }
+    }))
+
+    function let_it_snow() {
+      snow.ctx.clearRect(0, 0, w, h)
+      snow.ctx.fillStyle = '#fff'
+      snobjects.forEach(s => s.render(s.step()))
+    }
+
+    function go() {
+      let_it_snow()
+      window.requestAnimationFrame(go)
+    }
+
+    go()
+  </script>
+</body>
+
+</html>
