@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Happy Holidays!</title>
 </head>
+
 <body>
 
   <svg id="foo" width="800" height="500" xmlns="http://www.w3.org/2000/svg">
     <path id="my_path" d="M 20,20 C 280,60 500,40 820,20" fill="transparent" />
-    <text style="dominant-baseline: hanging; font: 100px cursive; fill: #393;"> 
+    <text style="dominant-baseline: hanging; font: 100px cursive; fill: #393;">
       <textPath xmlns:xlink="http://www.w3.org/1999/xlink" href="#my_path">
         Merry Christmas!
       </textPath>
@@ -18,8 +20,8 @@
 
   <img id="cat1" src="/archie200.png"></img>
   <img id="cat2" src="/amelia200.png"></img>
-  
-  <script>    
+
+  <script>
     let el = document.getElementById.bind(document)
     let w = window.innerWidth, h = window.innerHeight
 
@@ -34,7 +36,7 @@
     }
 
     // trees and hills
-    
+
     let trees = prep_canvas()
     trees.ctx.fillStyle = '#000'
     trees.ctx.fillRect(0, 0, w, h)
@@ -45,7 +47,7 @@
     let hill4 = x => Math.cos(x * 16 / w) * (h / 90) + h / 16
     let hill5 = x => Math.sin(x * 8 / w) * (h / 90) + h / 22
     let mixmax = (...fs) => i => Math.max.apply(null, fs.map(f => f(i)))
-    let mixave = (...fs) => i => fs.map(f => f(i)).reduce((acc, x) => acc+x, 0)/fs.length
+    let mixave = (...fs) => i => fs.map(f => f(i)).reduce((acc, x) => acc + x, 0) / fs.length
 
     function draw_hill(f, size, p) {
       let pairs = []
@@ -54,8 +56,8 @@
         if(Math.random() < p)
           pairs.push([i, h - f(i)])
       }
-      pairs.forEach(([x,y]) => 
-          draw_tree(x, h - Math.random() * (h -y), size + Math.random() * size * 0.5))
+      pairs.forEach(([x, y]) =>
+        draw_tree(x, h - Math.random() * (h - y), size + Math.random() * size * 0.5))
     }
 
     function draw_tree(x, y, size) {
@@ -71,10 +73,10 @@
     draw_hill(hill5, 150, 0.01)
 
     let treedata = trees.ctx.getImageData(0, 0, w, h).data
-    let pixelq = (data, x, y) => data[(y|0) * w * 4 + (x|0) * 4]
+    let pixelq = (data, x, y) => data[(y | 0) * w * 4 + (x | 0) * 4]
 
     // snow
-    
+
     let snow = prep_canvas()
     let snobjects = Array(800).fill(0).map(_ => ({
       x: Math.random() * w,
@@ -100,8 +102,8 @@
         this.y += this.dy
         this.x += Math.random() * 1 - 1.5
         this.x = this.x < 0 ? w - this.x
-               : this.x > w ? this.x - w
-               : this.x
+          : this.x > w ? this.x - w
+            : this.x
       }
     }))
 
@@ -120,21 +122,21 @@
     function magic_text(t) {
       text.ctx.fillStyle = `hsl(${t} 80% 80%)`
       text.ctx.font = '150px cursive'
-      text.ctx.fillText('Happy Holidays!', w/8, h/3, w - w/4)      
+      text.ctx.fillText('Happy Holidays!', w / 8, h / 3, w - w / 4)
     }
-    
+
     // svgzplz
 
     let i = new Image()
     let z = el('foo')
-    let s = "data:image/svg+xml;charset=utf-8," 
-          + encodeURIComponent(z.outerHTML)
+    let s = "data:image/svg+xml;charset=utf-8,"
+      + encodeURIComponent(z.outerHTML)
     i.src = s
-    i.onload = function() {
+    i.onload = function () {
       text.ctx.drawImage(i, 0, 0)
       textdata = text.ctx.getImageData(0, 0, w, h).data
     }
-    
+
     // sparkle
 
     let sparkle = prep_canvas()
@@ -142,11 +144,11 @@
     function make_it_sparkle() {
       if(!rand(50))
         sparkle.ctx.clearRect(0, 0, w, h)
-      for(let i=0; i<100; i++) {
+      for(let i = 0; i < 100; i++) {
         let r = 50
         let x = rand(w), y = rand(h)
-        let dx = Math.sqrt(rand(2*r*2*r)) - r, dy = Math.sqrt(rand(2*r*2*r)) - r
-        if(pixelq(textdata, x+dx, y+dy)) {
+        let dx = Math.sqrt(rand(2 * r * 2 * r)) - r, dy = Math.sqrt(rand(2 * r * 2 * r)) - r
+        if(pixelq(textdata, x + dx, y + dy)) {
           sparkle.ctx.fillStyle = `hsl(${rand(360)} 80% 80%)`
           sparkle.ctx.fillRect(x, y, 5, 5)
         }
@@ -155,8 +157,8 @@
 
     // cats
 
-    
-    
+
+
     // gogogo
 
     let t = 0
