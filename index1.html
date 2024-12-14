@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    canvas {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+  </style>
+  <title>Happy Holidays!</title>
+</head>
+
+<body>
+  <canvas id="can1"></canvas>
+  <canvas id="can3"></canvas>
+  <canvas id="can2"></canvas>
+
+  <script>
+    let el = document.getElementById.bind(document)
+
+    // prepare our canvas
+    function cancan(can) {
+      let ctx = can.getContext('2d')
+      let w = window.innerWidth, h = window.innerHeight
+      can.width = w; can.height = h
+      return {can, ctx, w, h}
+    }
+
+    let c1 = cancan(el('can1'))
+    let c2 = cancan(el('can2'))
+    let c3 = cancan(el('can3'))
+
+    // paint it black
+    c1.ctx.fillStyle = '#000'
+    c1.ctx.fillRect(0, 0, c1.w, c1.h)
+
+    // make some snowbjects
+    let snow = Array(1600).fill(0).map(_ => {
+      return {
+        x: Math.random() * c2.w,
+        y: -50,
+        r: Math.random() * 10,
+        dy: Math.random() * 5 + 2,
+        delay: Math.random() * 500,
+        ff: false,
+        render() {
+          c2.ctx.fillRect(this.x, this.y, this.r, this.r)
+        },
+        step() {
+          if(this.delay-- > 0) return
+          this.y += this.dy + Math.random()
+          this.x += Math.random() - 0.5
+          if(this.y >= c2.h - 50 - this.r || treedata.data[(this.y | 0) * c3.w * 4 + (this.x | 0) * 4 + 1]) {
+            this.ff = !this.ff
+            if(this.ff) return this.delay = 300
+            this.y = 0
+            this.x = Math.random() * c2.w
+          }
+        }
+      }
+    })
+
+    // draw falling snowflakes
+    c2.ctx.fillStyle = '#FFF'
+    function snowfall() {
+      c2.ctx.clearRect(0, 0, c2.w, c2.h)
+      snow.forEach(sn => {
+        sn.render()
+        sn.step()
+      })
+    }
+
+    // change text colour
+    function magictext() {
+      c1.ctx.fillStyle = `hsl(${t} 80% 80%)`
+      c1.ctx.font = '64px sans-serif'
+      c1.ctx.textAlign = 'center'
+      c1.ctx.textBaseline = 'middle'
+      c1.ctx.fillText('Happy Holidays!', c1.w / 2, c1.h / 2)
+    }
+
+    // happy little trees
+    c3.ctx.fillStyle = '#333'
+    function make_a_tree(x, y, w, h) {
+      c3.ctx.fillRect(x - 15, y, 30, 60) // todo: proportional width
+      draw_tri(c3.ctx, x, y, w, h / 5)
+      draw_tri(c3.ctx, x, y - h / 5, w * 8 / 10, h / 5)
+      draw_tri(c3.ctx, x, y - 2 * h / 5, w * 7 / 10, h / 5)
+      draw_tri(c3.ctx, x, y - 3 * h / 5, w * 5 / 10, h / 5)
+      draw_tri(c3.ctx, x, y - 4 * h / 5, w * 4 / 10, h / 5)
+      draw_tri(c3.ctx, x, y - h, w * 3 / 10, h / 5)
+    }
+    function draw_tri(ctx, cx, by, w, h) {
+      ctx.beginPath()
+      ctx.moveTo(cx, by - h)
+      ctx.lineTo(cx - w / 2, by)
+      ctx.lineTo(cx + w / 2, by)
+      ctx.fill()
+    }
+    make_a_tree(c3.w / 2, c3.h - 100, c3.w / 8, c3.h / 4)
+    make_a_tree(c3.w / 3, c3.h - 100, c3.w / 8, c3.h / 4)
+    make_a_tree(c3.w / 4, c3.h - 100, c3.w / 8, c3.h / 4)
+    let treedata = c3.ctx.getImageData(0, 0, c3.w, c3.h)
+
+    // let's go
+    function go() {
+      t++
+      snowfall()
+      magictext()
+      requestAnimationFrame(go)
+    }
+
+    let t = 0
+    go()
+  </script>
+</body>
+
+</html>
