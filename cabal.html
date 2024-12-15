@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Holiday Craftiness!</title>
+  <style>
+    body {
+      background: #000;
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="text"></canvas>
+  <canvas id="trees"></canvas>
+  <canvas id="snow"></canvas>
+
+  <script>
+    let el = document.getElementById.bind(document)
+    let w = window.innerWidth
+    let h = window.innerHeight
+
+    function prep_canvas(str) {
+      let can = el(str)
+      can.style = "position: absolute; top: 0px; left: 0px;"
+      let ctx = can.getContext('2d')
+      can.width = w
+      can.height = h
+      return {can: can, ctx: ctx}
+    }
+
+    let snow = prep_canvas('snow')
+    snow.ctx.fillStyle = "#000"
+    snow.ctx.fillRect(0, 0, w, h)
+
+    let rand = n => Math.floor(Math.random() * n)
+    let pix = (data, x, y) => data[4 * w * (y | 0) + 4 * (x | 0)]
+    let wind = 0, dwind = 0.01
+
+    let snobjects = Array(700).fill(0).map(_ => ({
+      size: rand(15) + 2,
+      x: rand(w),
+      y: -20,
+      dy: Math.random(),
+      delay: rand(h * 2),
+      ff: false,
+      render() {
+        snow.ctx.font = `${this.size}px serif`
+        snow.ctx.fillText("❄️", this.x, this.y)
+      },
+      step() {
+        // sticky
+        if(this.delay > 0) return --this.delay
+        if(this.ff) {
+          this.ff = false
+          // this.y = -20
+        }
+        // surfaces
+        if(this.y > h ||
+          (pix(pix_data, this.x, this.y)
+            && rand(50) < 1)) {
+          this.delay = 100 + rand(200)
+          this.ff = true
+        }
+        // dv
+        this.y += (18 - this.size) / 12 + this.dy
+        this.x += Math.random() - 0.5 + Math.random() * wind
+        // torus
+        this.y = this.y > h ? -20 : this.y
+        this.x = this.x > w ? this.x - w
+          : this.x < 0 ? w - this.x
+            : this.x
+        // wind
+        dwind = wind > 2 ? Math.abs(dwind) * -1
+          : wind < -2 ? Math.abs(dwind)
+            : dwind
+        if(rand(100) < 1)
+          wind += dwind
+        if(rand(1000) < 1)
+          dwind = -1 * dwind
+      }
+    }))
+
+    function make_it_snow(t) {
+      // snow.ctx.fillStyle = "#000"
+      // snow.ctx.fillRect(0, 0, w, h)
+      snow.ctx.clearRect(0, 0, w, h)
+      snobjects.forEach(s => {
+        s.step()
+        s.render()
+      })
+    }
+
+    // mrand
+    let fourb = 2 ** 32
+    function ranqd1(seed) {
+      let mod = fourb, mul = 1664525, inc = 1013904223
+      return _ => seed = (seed * mul + inc) % mod
+    }
+    let rng = ranqd1(11417)
+    let ranq = n => Math.floor(n * rng() / fourb)
+
+    // trees and hills
+    let trees = prep_canvas('trees')
+
+    let hill1 = x => h * 11 / 16 + h / 50 * Math.sin(x / 300)
+    let hill2 = x => h * 12 / 16 + h / 40 * Math.sin(x / 120)
+    let hill2a = x => h * 14 / 16 + h / 50 * Math.cos(x / 80)
+    let hill3 = x => h * 15 / 16 + h / 45 * Math.cos(x / 100)
+    let avg = (...fs) => x => fs.map(f => f(x)).reduce((acc, y) => acc + y, 0) / fs.length
+
+    draw_trees(hill1, 100, 25, "#cdc")
+    draw_trees(avg(hill2, hill2a), 10, 70, "#ded")
+    draw_trees(hill3, 1, 230, "#efe")
+
+    function draw_trees(hill, p, size, bg) {
+      let draw_me = []
+      for(x = 0; x < w; x++) {
+        trees.ctx.fillStyle = bg
+        trees.ctx.fillRect(x, hill(x), 1, h - hill(x))
+        if(ranq(100) < p)
+          draw_me.push([x, hill(x)])
+      }
+
+      draw_me.forEach(([x, y]) => {
+        trees.ctx.font = `${size + ranq(70) * size / 100}px serif`
+        trees.ctx.fillText(ranq(100) < 50 ? "🎄" : "🌲", x - 10, y + ranq(h - y))
+      })
+    }
+
+    let tree_data = trees.ctx.getImageData(0, 0, w, h).data
+
+    // text
+    let text = prep_canvas('text')
+
+    text.ctx.fillStyle = "#eee"
+    text.ctx.font = `200px cursive`
+    text.ctx.fillText("Happy Holidays", w * 1 / 16, h * 3 / 6, w * 7 / 8)
+
+    function draw_text(t) {
+      text.ctx.fillStyle = `hsl(${t} 80% 80%)`
+      text.ctx.font = `200px sans-serif`
+      text.ctx.fillText("CS CABAL!", w * 1 / 16, h * 11 / 16, w * 7 / 8)
+    }
+
+    draw_text(0)
+    let text_data = text.ctx.getImageData(0, 0, w, h).data
+
+    pix_data = tree_data.map((p, i) => Math.max(p, text_data[i]))
+
+    // let's go
+    let t = 0
+    function go() {
+      t++
+      make_it_snow(t)
+      draw_text(t)
+      window.requestAnimationFrame(go)
+    }
+
+    go()
+
+  </script>
+</body>
+
+</html>
